@@ -1,0 +1,30 @@
+
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: connector
+      MYSQL_USER: connector
+      MYSQL_PASSWORD: connectorpass
+    ports:
+      - "3307:3306"
+
+  connector:
+    image: ghcr.io/international-data-spaces-association/dataspace-connector:latest
+    container_name: ids-connector
+    depends_on:
+      - mysql
+    ports:
+      - "9090:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/connector
+      SPRING_DATASOURCE_USERNAME: connector
+      SPRING_DATASOURCE_PASSWORD: connectorpass
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQL8Dialect
+
