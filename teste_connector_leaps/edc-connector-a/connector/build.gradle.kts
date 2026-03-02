@@ -24,6 +24,8 @@ dependencies {
     implementation(libs.edc.runtime.core)
     implementation(libs.edc.connector.core)
 
+    implementation(libs.edc.configuration.filesystem)
+
     implementation(libs.edc.http)
 
     implementation(libs.jakarta.rsApi)
