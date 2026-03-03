@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  consumer:
+    build: .
+    container_name: edc-consumer
+    ports:
+      - "29191:29191"
+      - "29192:29192"
+      - "29193:29193"
+      - "29194:29194"
+      - "29195:29195"
+    volumes:
+      - ./configuracoes:/app/configuracoes
+    command:
+      - "-Dedc.fs.config=/app/configuracoes/consumer-configuration.properties"
+      - "-jar"
+      - "/app/app.jar"
+
+  provider:
+    build: .
+    container_name: edc-provider
+    ports:
+      - "19191:19191"
+      - "19192:19192"
+      - "19193:19193"
+      - "19194:19194"
+      - "19195:19195"
+    volumes:
+      - ./configuracoes:/app/configuracoes
+    command:
+      - "-Dedc.fs.config=/app/configuracoes/provider-configuration.properties"
+      - "-jar"
+      - "/app/app.jar"
