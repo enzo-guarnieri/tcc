@@ -1,0 +1,29 @@
+# -------------------------
+# STAGE 1 — Build com Gradle
+# -------------------------
+FROM gradle:9.3.1-jdk17 AS builder
+
+WORKDIR /app
+
+COPY . .
+
+RUN ./gradlew :connector:clean :connector:shadowJar --no-daemon
+
+
+# -------------------------
+# STAGE 2 — Runtime leve
+# -------------------------
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+# copia o connector
+COPY --from=builder /app/connector/build/libs/basic-connector.jar app.jar
+
+# baixa o OpenTelemetry Java Agent
+ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar /app/opentelemetry-javaagent.jar
+
+# configs
+COPY configuracoes /app/configuracoes
+
+ENTRYPOINT ["java"]

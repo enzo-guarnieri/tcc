@@ -1,0 +1,79 @@
+version: "3.8"
+
+services:
+  consumer:
+    build:
+      context: ..
+      dockerfile: Dockerfile.observability
+    container_name: observability-edc-consumer
+    ports:
+      - "29191:29191"
+      - "29192:29192"
+      - "29193:29193"
+      - "29194:29194"
+      - "29195:29195"
+      - "9464:9464"
+    volumes:
+      - ../configuracoes:/app/configuracoes
+    environment:
+      OTEL_SERVICE_NAME: consumer
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9464
+      OTEL_LOGS_EXPORTER: none
+    command:
+      - "-javaagent:/app/opentelemetry-javaagent.jar"
+      - "-Dedc.fs.config=/app/configuracoes/observability-consumer-configuration.properties"
+      - "-jar"
+      - "/app/app.jar"
+    depends_on:
+      - jaeger
+
+  provider:
+    build:
+      context: ..
+      dockerfile: Dockerfile.observability
+    container_name: observability-edc-provider
+    ports:
+      - "19191:19191"
+      - "19192:19192"
+      - "19193:19193"
+      - "19194:19194"
+      - "19195:19195"
+      - "9465:9464"
+    volumes:
+      - ../configuracoes:/app/configuracoes
+    environment:
+      OTEL_SERVICE_NAME: provider
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9464
+      OTEL_LOGS_EXPORTER: none
+    command:
+      - "-javaagent:/app/opentelemetry-javaagent.jar"
+      - "-Dedc.fs.config=/app/configuracoes/observability-provider-configuration.properties"
+      - "-jar"
+      - "/app/app.jar"
+    depends_on:
+      - jaeger
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    container_name: jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "16686:16686"
+
+  prometheus:
+    image: prom/prometheus:v2.30.3
+    container_name: prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - consumer
+      - provider
