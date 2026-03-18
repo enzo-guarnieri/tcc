@@ -158,7 +158,7 @@ curl -H "X-Api-Key: password" \
 
 ```bash
 curl -H "X-Api-Key: password" \
-  -X GET http://localhost:29193/management/v3/contractnegotiations/1f7b5028-3ab1-454e-a39b-c7f8940fa7ec \
+  -X GET http://localhost:29193/management/v3/contractnegotiations/936285c1-5533-49cc-9832-cdb1a72e81ce \
   -s | jq
 ```
 

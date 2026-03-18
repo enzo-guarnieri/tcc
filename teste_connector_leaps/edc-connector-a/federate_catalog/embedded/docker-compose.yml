@@ -1,0 +1,128 @@
+services:
+  consumer1:
+    build:
+      context: ../..
+      dockerfile: Dockerfile.federateEmbedded
+    container_name: edc-consumer-1
+    ports:
+      - "29191:29191"
+      - "29192:29192"
+      - "29193:29193"
+      - "29194:29194"
+      - "29195:29195"
+      - "9464:9464"
+    volumes:
+      - ../../configuracoes:/app/configuracoes
+    environment:
+      OTEL_SERVICE_NAME: consumer
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9464
+      OTEL_LOGS_EXPORTER: none
+    command:
+      - "-javaagent:/app/opentelemetry-javaagent.jar"
+      - "-Dedc.fs.config=/app/configuracoes/federate-catalog-embedded-consumer1-configuration.properties"
+      - "-jar"
+      - "/app/app.jar"
+    depends_on:
+      - jaeger
+
+  provider1:
+    build:
+      context: ../..
+      dockerfile: Dockerfile.federateEmbedded
+    container_name: edc-provider-1
+    ports:
+      - "19191:19191"
+      - "19192:19192"
+      - "19193:19193"
+      - "19194:19194"
+    volumes:
+      - ../../configuracoes:/app/configuracoes
+    environment:
+      OTEL_SERVICE_NAME: provider1
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9464
+      OTEL_LOGS_EXPORTER: none
+    command:
+      - "-javaagent:/app/opentelemetry-javaagent.jar"
+      - "-Dedc.fs.config=/app/configuracoes/federate-catalog-embedded-provider1-configuration.properties"
+      - "-jar"
+      - "/app/app.jar"
+
+  provider2:
+    build:
+      context: ../..
+      dockerfile: Dockerfile.federateEmbedded
+    container_name: edc-provider-2
+    ports:
+      - "39291:19191"
+      - "39292:19192"
+      - "39293:19193"
+      - "39294:19194"
+    volumes:
+      - ../../configuracoes:/app/configuracoes
+    environment:
+      OTEL_SERVICE_NAME: provider2
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9464
+      OTEL_LOGS_EXPORTER: none
+    command:
+      - "-javaagent:/app/opentelemetry-javaagent.jar"
+      - "-Dedc.fs.config=/app/configuracoes/federate-catalog-embedded-provider2-configuration.properties"
+      - "-jar"
+      - "/app/app.jar"
+
+  fc-connector:
+    build:
+      context: ../..
+      dockerfile: Dockerfile.federateEmbedded
+    container_name: edc-federated-catalog
+    ports:
+      - "49191:29191"
+      - "49192:29192"
+      - "49193:29193"
+      - "49194:29194"
+      - "49195:29195"
+    volumes:
+      - ../../configuracoes:/app/configuracoes
+    environment:
+      OTEL_SERVICE_NAME: catalog
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9464
+      OTEL_LOGS_EXPORTER: none
+    command:
+      - "-javaagent:/app/opentelemetry-javaagent.jar"
+      - "-Dedc.fs.config=/app/configuracoes/federate-catalog-embedded-catalog-configuration.properties"
+      - "-jar"
+      - "/app/app.jar"
+    depends_on:
+      - provider1
+      - provider2
+      - consumer1
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    container_name: jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "16686:16686"
+
+  prometheus:
+    image: prom/prometheus:v2.30.3
+    container_name: prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - consumer1
+      - provider1
+      - provider2
+      - fc-connector
