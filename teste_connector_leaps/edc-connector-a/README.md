@@ -197,3 +197,11 @@ http://localhost:16686
 ```
 
 Os serviços `consumer` e `provider` devem aparecer na lista de serviços disponíveis para visualização dos traces.
+
+# Federate
+
+```bash
+curl -d @resources/empty-query.json \
+ -H 'content-type: application/json' http://localhost:49195/api/catalog/v1alpha/catalog/query \
+ -s | jq
+```

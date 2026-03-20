@@ -75,7 +75,7 @@ services:
       - "-jar"
       - "/app/app.jar"
 
-  fc-connector:
+  fcconnector:
     build:
       context: ../..
       dockerfile: Dockerfile.federateEmbedded
@@ -125,4 +125,4 @@ services:
       - consumer1
       - provider1
       - provider2
-      - fc-connector
+      - fcconnector

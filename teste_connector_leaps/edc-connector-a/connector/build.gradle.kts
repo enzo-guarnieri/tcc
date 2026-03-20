@@ -51,6 +51,9 @@ dependencies {
     implementation(libs.edc.data.plane.http)
     implementation(libs.edc.data.plane.iam)
     implementation(libs.edc.fc.spi.crawler)
+
+    implementation(project(":federate_catalog:embedded:federated-catalog-base"))
+    implementation(project(":federate_catalog:embedded:fixed-node-resolver"))
      
 }
 
