@@ -67,7 +67,7 @@ curl -H "X-Api-Key: password" \
 curl -H "X-Api-Key: password" \
   -H "Content-Type: application/json" \
   -d @resources/get-dataset.json \
-  -X POST http://localhost:29193/management/v3/catalog/dataset/request \
+  -X POST http://localhost:19193/management/v3/catalog/dataset/request \
   -s | jq
 ```
 
@@ -138,7 +138,7 @@ Com o odrl:hasPolicy/@id, agora podemos substituí-lo no arquivo negotiate-contr
 curl -H "X-Api-Key: password" \
   -H "Content-Type: application/json" \
   -d @resources/negotiate-contract.json \
-  -X POST http://localhost:29193/management/v3/contractnegotiations \
+  -X POST http://localhost:19193/management/v3/contractnegotiations \
   -s | jq
 ```
 
@@ -158,7 +158,7 @@ curl -H "X-Api-Key: password" \
 
 ```bash
 curl -H "X-Api-Key: password" \
-  -X GET http://localhost:29193/management/v3/contractnegotiations/936285c1-5533-49cc-9832-cdb1a72e81ce \
+  -X GET http://localhost:19193/management/v3/contractnegotiations/21824feb-9c25-4dc8-bcea-2f50fc4cafcf \
   -s | jq
 ```
 
