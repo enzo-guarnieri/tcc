@@ -3,7 +3,7 @@ format.version = "1.1"
 
 [versions]
 awaitility = "4.2.2"
-edc = "0.14.1"
+edc = "0.15.1"
 okhttp-mockwebserver = "5.3.2"
 restAssured = "6.0.0"
 rsApi = "4.0.0"
@@ -54,6 +54,7 @@ edc-transfer-data-plane-signaling = { module = "org.eclipse.edc:transfer-data-pl
 edc-vault-hashicorp = { module = "org.eclipse.edc:vault-hashicorp", version.ref = "edc" }
 edc-validator-data-address-http-data = { module = "org.eclipse.edc:validator-data-address-http-data", version.ref = "edc" }
 edc-web-spi = { module = "org.eclipse.edc:web-spi", version.ref = "edc" }
+edc-participant-context-single-core = { module = "org.eclipse.edc:participant-context-single-core", version.ref = "edc" }
 
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
 azure-storage-blob = { module = "com.azure:azure-storage-blob", version = "12.32.0" }
@@ -72,6 +73,6 @@ testcontainers-kafka = { module = "org.testcontainers:kafka", version.ref = "tes
 testcontainers-minio = { module = "org.testcontainers:minio", version.ref = "testcontainers" }
 
 [plugins]
-edc-build = { id = "org.eclipse.edc.edc-build", version = "1.1.6" }
-shadow = { id = "com.gradleup.shadow", version = "9.3.1" }
+edc-build = { id = "org.eclipse.edc.edc-build", version = "1.3.0" }
+shadow = { id = "com.gradleup.shadow", version = "9.4.1" }
 

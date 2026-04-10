@@ -1,0 +1,8 @@
+{
+  "@context": {
+    "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+  },
+  "counterPartyId": "provider1",
+  "counterPartyAddress": "http://provider1:19194/protocol",
+  "protocol": "dataspace-protocol-http"
+}

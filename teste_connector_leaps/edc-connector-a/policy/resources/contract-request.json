@@ -1,0 +1,28 @@
+{
+  "@context": {
+    "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+  },
+  "@type": "ContractRequest",
+  "counterPartyId": "provider1",
+  "counterPartyAddress": "http://provider1:19194/protocol",
+  "protocol": "dataspace-protocol-http",
+  "policy": {
+    "@context": "http://www.w3.org/ns/odrl.jsonld",
+    "@id": "1:test-document:13dce0f1-52ed-4554-a194-e83e92733ee5",
+    "@type": "Offer",
+    "permission": [
+      {
+        "action": "use",
+        "target": "test-document",
+        "constraint": {
+          "@type": "AtomicConstraint",
+          "leftOperand": "location",
+          "operator": "eq",
+          "rightOperand": "eu"
+        }
+      }
+    ],
+    "assigner": "provider1",
+    "target": "test-document"
+  }
+}

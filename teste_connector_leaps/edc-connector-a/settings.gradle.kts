@@ -18,5 +18,6 @@ dependencyResolutionManagement {
 include(
     ":connector",
     ":federate_catalog:embedded:federated-catalog-base",
-    ":federate_catalog:embedded:fixed-node-resolver"
+    ":federate_catalog:embedded:fixed-node-resolver",
+    ":policy:policy-functions"
 )

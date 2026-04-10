@@ -67,7 +67,7 @@ curl -H "X-Api-Key: password" \
 curl -H "X-Api-Key: password" \
   -H "Content-Type: application/json" \
   -d @resources/get-dataset.json \
-  -X POST http://localhost:19193/management/v3/catalog/dataset/request \
+  -X POST http://localhost:29193/management/v3/catalog/dataset/request \
   -s | jq
 ```
 
@@ -94,9 +94,9 @@ O resultado será algo como isso:
         "@id": "cb701b36-48ee-4132-8436-dba7b83c606c",
         "@type": "dcat:DataService",
         "dcat:endpointDescription": "dspace:connector",
-        "dcat:endpointUrl": "http://provider:19194/protocol",
+        "dcat:endpointUrl": "http://provider1:19194/protocol",
         "dct:terms": "dspace:connector",
-        "dct:endpointUrl": "http://provider:19194/protocol"
+        "dct:endpointUrl": "http://provider1:19194/protocol"
       }
     },
     {
@@ -108,9 +108,9 @@ O resultado será algo como isso:
         "@id": "cb701b36-48ee-4132-8436-dba7b83c606c",
         "@type": "dcat:DataService",
         "dcat:endpointDescription": "dspace:connector",
-        "dcat:endpointUrl": "http://provider:19194/protocol",
+        "dcat:endpointUrl": "http://provider1:19194/protocol",
         "dct:terms": "dspace:connector",
-        "dct:endpointUrl": "http://provider:19194/protocol"
+        "dct:endpointUrl": "http://provider1:19194/protocol"
       }
     }
   ],
@@ -138,7 +138,7 @@ Com o odrl:hasPolicy/@id, agora podemos substituí-lo no arquivo negotiate-contr
 curl -H "X-Api-Key: password" \
   -H "Content-Type: application/json" \
   -d @resources/negotiate-contract.json \
-  -X POST http://localhost:19193/management/v3/contractnegotiations \
+  -X POST http://localhost:29193/management/v3/contractnegotiations \
   -s | jq
 ```
 
@@ -158,7 +158,7 @@ curl -H "X-Api-Key: password" \
 
 ```bash
 curl -H "X-Api-Key: password" \
-  -X GET http://localhost:19193/management/v3/contractnegotiations/21824feb-9c25-4dc8-bcea-2f50fc4cafcf \
+  -X GET http://localhost:29193/management/v3/contractnegotiations/493db1f4-e391-4a70-a3e5-1b9f40d2c2f4 \
   -s | jq
 ```
 
@@ -204,4 +204,22 @@ Os serviços `consumer` e `provider` devem aparecer na lista de serviços dispon
 curl -d @resources/empty-query.json \
  -H 'content-type: application/json' http://localhost:49195/api/catalog/v1alpha/catalog/query \
  -s | jq
+```
+
+# Policy
+
+## Get catalog
+
+```bash
+curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" \
+  -d @resources/catalog-request.json \
+  "http://localhost:29193/management/v3/catalog/request" | jq
+```
+
+## Negociar contrato com a claim correta
+
+```bash
+curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" \
+  -d @resources/contract-request.json \
+  "http://localhost:29193/management/v3/contractnegotiations" | jq
 ```
