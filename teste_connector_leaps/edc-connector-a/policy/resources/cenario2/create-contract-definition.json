@@ -1,0 +1,14 @@
+{
+  "@context": { "@vocab": "https://w3id.org/edc/v0.0.1/ns/" },
+  "@id": "2",
+  "accessPolicyId": "open-policy",
+  "contractPolicyId": "arg-policy2",
+  "assetsSelector": [
+    {
+      "@type": "CriterionDto",
+      "operandLeft": "https://w3id.org/edc/v0.0.1/ns/id",
+      "operator": "=",
+      "operandRight": "test-document2"
+    }
+  ]
+}

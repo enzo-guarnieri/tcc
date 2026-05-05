@@ -1,0 +1,26 @@
+{
+  "@context": { "@vocab": "https://w3id.org/edc/v0.0.1/ns/" },
+  "@type": "ContractRequest",
+  "counterPartyId": "provider1",
+  "counterPartyAddress": "http://provider1:19194/protocol",
+  "protocol": "dataspace-protocol-http",
+  "policy": {
+    "@context": "http://www.w3.org/ns/odrl.jsonld",
+    "@id": "SUBSTITUIR_COM_ID_DO_CATALOG",
+    "@type": "Offer",
+    "permission": [
+      {
+        "action": "use",
+        "target": "test-document2",
+        "constraint": {
+          "@type": "AtomicConstraint",
+          "leftOperand": "location",
+          "operator": "eq",
+          "rightOperand": "arg"
+        }
+      }
+    ],
+    "assigner": "provider1",
+    "target": "test-document2"
+  }
+}

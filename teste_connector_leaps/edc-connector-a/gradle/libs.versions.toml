@@ -54,6 +54,10 @@ edc-transfer-data-plane-signaling = { module = "org.eclipse.edc:transfer-data-pl
 edc-vault-hashicorp = { module = "org.eclipse.edc:vault-hashicorp", version.ref = "edc" }
 edc-validator-data-address-http-data = { module = "org.eclipse.edc:validator-data-address-http-data", version.ref = "edc" }
 edc-web-spi = { module = "org.eclipse.edc:web-spi", version.ref = "edc" }
+edc-contract-spi = { module = "org.eclipse.edc:contract-spi", version.ref = "edc" }
+edc-core-spi = { module = "org.eclipse.edc:core-spi", version.ref = "edc" }
+edc-transaction-spi = { module = "org.eclipse.edc:transaction-spi", version.ref = "edc" }
+edc-transform-spi = { module = "org.eclipse.edc:transform-spi", version.ref = "edc" }
 edc-participant-context-single-core = { module = "org.eclipse.edc:participant-context-single-core", version.ref = "edc" }
 
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }

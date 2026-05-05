@@ -60,6 +60,7 @@ dependencies {
 
 
     implementation(project(":policy:policy-functions"))
+    implementation(project(":manual-negotiation-approval"))
 
 
      

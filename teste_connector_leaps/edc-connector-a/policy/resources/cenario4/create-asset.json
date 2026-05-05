@@ -1,0 +1,9 @@
+{
+  "@context": { "@vocab": "https://w3id.org/edc/v0.0.1/ns/" },
+  "@id": "test-document4",
+  "properties": {
+    "name": "dados sensiveis aprovacao manual",
+    "contenttype": "application/json"
+  },
+  "dataAddress": { "type": "test" }
+}

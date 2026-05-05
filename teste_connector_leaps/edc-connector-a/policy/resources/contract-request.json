@@ -8,21 +8,21 @@
   "protocol": "dataspace-protocol-http",
   "policy": {
     "@context": "http://www.w3.org/ns/odrl.jsonld",
-    "@id": "1:test-document:13dce0f1-52ed-4554-a194-e83e92733ee5",
+    "@id": "Mg==:dGVzdC1kb2N1bWVudDI=:YTI3ZjcyN2EtNzQwZC00YTJmLWI4OTktNzBlYTcxNDdiZmQz",
     "@type": "Offer",
     "permission": [
       {
         "action": "use",
-        "target": "test-document",
+        "target": "test-document2",
         "constraint": {
           "@type": "AtomicConstraint",
           "leftOperand": "location",
           "operator": "eq",
-          "rightOperand": "eu"
+          "rightOperand": "arg"
         }
       }
     ],
     "assigner": "provider1",
-    "target": "test-document"
+    "target": "test-document2"
   }
 }
