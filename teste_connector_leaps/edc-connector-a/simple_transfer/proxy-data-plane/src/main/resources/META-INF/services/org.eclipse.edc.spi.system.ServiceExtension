@@ -1,0 +1,2 @@
+org.eclipse.edc.sample.extension.proxy.CustomProxyDataPlaneExtension
+org.eclipse.edc.sample.runtime.SeedVaultExtension

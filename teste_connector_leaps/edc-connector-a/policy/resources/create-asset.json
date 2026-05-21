@@ -2,12 +2,19 @@
   "@context": {
     "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
   },
-  "@id": "test-document",
+  "@id": "prontuario-joao-silva",
   "properties": {
-    "name": "product description",
+    "name": "Prontuário Clínico FHIR - João Silva",
     "contenttype": "application/json"
   },
   "dataAddress": {
-    "type": "test"
+    "@type": "DataAddress",
+    "type": "HttpData",
+    "baseUrl": "https://data.guarnieri.studio/nginx/paciente",
+    "proxyMethod": "true",
+    "proxyBody": "true",
+    
+    "authKey": "Authorization",
+    "authCode": "Bearer TCC_MACKENZIE_SECRET_TOKEN_2026"
   }
 }

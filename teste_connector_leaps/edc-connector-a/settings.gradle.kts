@@ -20,5 +20,6 @@ include(
     ":federate_catalog:embedded:federated-catalog-base",
     ":federate_catalog:embedded:fixed-node-resolver",
     ":policy:policy-functions",
-    ":manual-negotiation-approval"
+    ":manual-negotiation-approval",
+    ":simple_transfer:proxy-data-plane"
 )

@@ -1,17 +1,3 @@
-/*
- *  Copyright (c) 2020, 2021 Microsoft Corporation
- *
- *  This program and the accompanying materials are made available under the
- *  terms of the Apache License, Version 2.0 which is available at
- *  https://www.apache.org/licenses/LICENSE-2.0
- *
- *  SPDX-License-Identifier: Apache-2.0
- *
- *  Contributors:
- *       Microsoft Corporation - initial API and implementation
- *       Fraunhofer-Gesellschaft zur Förderung der angewandten Forschung e.V. - added dependencies
- *
- */
 
 plugins {
     `java-library`
@@ -54,6 +40,7 @@ dependencies {
 
     implementation(libs.edc.participant.context.single.core)
 
+
     implementation(project(":federate_catalog:embedded:federated-catalog-base"))
     implementation(project(":federate_catalog:embedded:fixed-node-resolver"))
 
@@ -61,6 +48,9 @@ dependencies {
 
     implementation(project(":policy:policy-functions"))
     implementation(project(":manual-negotiation-approval"))
+
+
+    implementation(project(":simple_transfer:proxy-data-plane"))
 
 
      

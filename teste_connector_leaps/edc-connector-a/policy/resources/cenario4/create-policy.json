@@ -1,6 +1,6 @@
 {
   "@context": { "@vocab": "https://w3id.org/edc/v0.0.1/ns/" },
-  "@id": "open-policy4",
+  "@id": "politica-acesso-aberto",
   "policy": {
     "@context": "http://www.w3.org/ns/odrl.jsonld",
     "@type": "Set",

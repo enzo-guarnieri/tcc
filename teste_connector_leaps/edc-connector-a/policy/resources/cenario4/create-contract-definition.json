@@ -1,14 +1,14 @@
 {
   "@context": { "@vocab": "https://w3id.org/edc/v0.0.1/ns/" },
-  "@id": "4",
-  "accessPolicyId": "open-policy4",
-  "contractPolicyId": "open-policy4",
+  "@id": "contrato-prontuario-aprovacao-manual",
+  "accessPolicyId": "politica-acesso-aberto",
+  "contractPolicyId": "politica-acesso-aberto",
   "assetsSelector": [
     {
       "@type": "CriterionDto",
       "operandLeft": "https://w3id.org/edc/v0.0.1/ns/id",
       "operator": "=",
-      "operandRight": "test-document4"
+      "operandRight": "prontuario-joao-silva"
     }
   ],
   "privateProperties": {
