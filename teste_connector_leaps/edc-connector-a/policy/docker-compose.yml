@@ -26,6 +26,8 @@ services:
       - "/app/app.jar"
     depends_on:
       - jaeger
+    networks:
+      - tcc
 
   provider1:
     build:
@@ -51,6 +53,8 @@ services:
       - "-Dedc.fs.config=/app/configuracoes/policy/policy-embedded-provider1-configuration.properties"
       - "-jar"
       - "/app/app.jar"
+    networks:
+      - tcc
 
   provider2:
     build:
@@ -75,6 +79,8 @@ services:
       - "-Dedc.fs.config=/app/configuracoes/policy/policy-embedded-provider2-configuration.properties"
       - "-jar"
       - "/app/app.jar"
+    networks:
+      - tcc
 
   fcconnector:
     build:
@@ -104,6 +110,8 @@ services:
       - provider1
       - provider2
       - consumer1
+    networks:
+      - tcc
 
   jaeger:
     image: jaegertracing/all-in-one
@@ -114,6 +122,8 @@ services:
       - "4317:4317"
       - "4318:4318"
       - "16686:16686"
+    networks:
+      - tcc
 
   prometheus:
     image: prom/prometheus:v2.30.3
@@ -127,3 +137,10 @@ services:
       - provider1
       - provider2
       - fcconnector
+    networks:
+      - tcc
+
+networks:
+  tcc:
+    external: true
+    name: tcc

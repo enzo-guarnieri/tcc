@@ -1,0 +1,411 @@
+{
+  "resourceType": "Bundle",
+  "id": "bundle-historico-joao-silva",
+  "type": "collection",
+  "timestamp": "2025-11-10T08:00:00-03:00",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:patient-001",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-001",
+        "identifier": [
+          {
+            "system": "https://rnds.saude.gov.br/fhir/r4/NamingSystem/cpf",
+            "value": "***.***.678-91"
+          },
+          {
+            "system": "https://www.ans.gov.br/plano",
+            "value": "SAUDE-TOTAL-00142378"
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "Silva",
+            "given": ["João", "Antônio"]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1971-03-22",
+        "address": [
+          {
+            "city": "São Paulo",
+            "state": "SP",
+            "country": "BR"
+          }
+        ],
+        "contact": [
+          {
+            "relationship": [
+              {
+                "text": "Cônjuge"
+              }
+            ],
+            "name": {
+              "text": "Maria das Graças Silva"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:encounter-001",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "encounter-001",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "Consulta ambulatorial"
+        },
+        "subject": { "reference": "urn:uuid:patient-001" },
+        "period": {
+          "start": "2023-02-14T09:30:00-03:00",
+          "end": "2023-02-14T10:15:00-03:00"
+        },
+        "reasonCode": [
+          {
+            "text": "Consulta de rotina — check-up anual"
+          }
+        ],
+        "serviceProvider": {
+          "display": "Hospital Rede Saúde Total — Unidade Consolação"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:condition-001",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "condition-001",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10",
+              "code": "I10",
+              "display": "Hipertensão essencial (primária)"
+            }
+          ]
+        },
+        "subject": { "reference": "urn:uuid:patient-001" },
+        "encounter": { "reference": "urn:uuid:encounter-001" },
+        "onsetDateTime": "2023-02-14",
+        "note": [{ "text": "PA: 148/94 mmHg. Iniciado acompanhamento." }]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:medication-001",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "medication-001",
+        "status": "active",
+        "intent": "order",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://www.anvisa.gov.br/datavisa/fila_produto",
+              "code": "1.1.1.1.1-3",
+              "display": "Losartana Potássica 50mg"
+            }
+          ]
+        },
+        "subject": { "reference": "urn:uuid:patient-001" },
+        "encounter": { "reference": "urn:uuid:encounter-001" },
+        "dosageInstruction": [
+          {
+            "text": "1 comprimido ao dia, pela manhã"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-001",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "observation-001",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "58410-2",
+              "display": "Hemograma completo"
+            }
+          ]
+        },
+        "subject": { "reference": "urn:uuid:patient-001" },
+        "encounter": { "reference": "urn:uuid:encounter-001" },
+        "effectiveDateTime": "2023-02-14",
+        "component": [
+          { "code": { "text": "Hemoglobina" }, "valueQuantity": { "value": 14.2, "unit": "g/dL" } },
+          { "code": { "text": "Leucócitos" }, "valueQuantity": { "value": 7400, "unit": "/mm³" } },
+          { "code": { "text": "Plaquetas" }, "valueQuantity": { "value": 210000, "unit": "/mm³" } }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:encounter-002",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "encounter-002",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "IMP",
+          "display": "Internação hospitalar"
+        },
+        "subject": { "reference": "urn:uuid:patient-001" },
+        "period": {
+          "start": "2024-01-08T14:00:00-03:00",
+          "end": "2024-01-22T11:00:00-03:00"
+        },
+        "reasonCode": [
+          {
+            "text": "Investigação de nódulo pulmonar identificado em exame de imagem"
+          }
+        ],
+        "serviceProvider": {
+          "display": "Hospital Rede Saúde Total — Unidade Paulista"
+        },
+        "hospitalization": {
+          "admitSource": {
+            "text": "Encaminhamento ambulatorial"
+          },
+          "dischargeDisposition": {
+            "text": "Alta com acompanhamento oncológico"
+          }
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:condition-002",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "condition-002",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10",
+              "code": "C34.1",
+              "display": "Neoplasia maligna do lobo superior do brônquio e do pulmão"
+            }
+          ]
+        },
+        "subject": { "reference": "urn:uuid:patient-001" },
+        "encounter": { "reference": "urn:uuid:encounter-002" },
+        "onsetDateTime": "2024-01-10",
+        "stage": [
+          {
+            "summary": {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "261613009",
+                  "display": "Estágio IIA"
+                }
+              ]
+            }
+          }
+        ],
+        "note": [
+          {
+            "text": "Biópsia confirmou adenocarcinoma pulmonar. Encaminhado para oncologia clínica para definição de protocolo terapêutico."
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-002",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "observation-002",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "85319-2",
+              "display": "Marcadores tumorais — painel"
+            }
+          ]
+        },
+        "subject": { "reference": "urn:uuid:patient-001" },
+        "encounter": { "reference": "urn:uuid:encounter-002" },
+        "effectiveDateTime": "2024-01-12",
+        "component": [
+          { "code": { "text": "CEA (Antígeno Carcinoembriônico)" }, "valueQuantity": { "value": 18.7, "unit": "ng/mL" }, "interpretation": [{ "text": "Elevado" }] },
+          { "code": { "text": "CA 125" }, "valueQuantity": { "value": 42.3, "unit": "U/mL" }, "interpretation": [{ "text": "Normal" }] }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-003",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "observation-003",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "imaging"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "24627-2",
+              "display": "Tomografia computadorizada do tórax"
+            }
+          ]
+        },
+        "subject": { "reference": "urn:uuid:patient-001" },
+        "encounter": { "reference": "urn:uuid:encounter-002" },
+        "effectiveDateTime": "2024-01-09",
+        "valueString": "Nódulo espiculado de 2,3 cm no lobo superior direito, sugestivo de neoplasia primária. Linfonodos mediastinais sem alterações significativas."
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:encounter-003",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "encounter-003",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "Consulta ambulatorial"
+        },
+        "subject": { "reference": "urn:uuid:patient-001" },
+        "period": {
+          "start": "2024-03-05T10:00:00-03:00",
+          "end": "2024-03-05T11:00:00-03:00"
+        },
+        "reasonCode": [
+          {
+            "text": "Retorno oncológico — avaliação de resposta ao tratamento"
+          }
+        ],
+        "serviceProvider": {
+          "display": "Instituto de Oncologia Rede Saúde Total"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:medication-002",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "medication-002",
+        "status": "active",
+        "intent": "order",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://www.anvisa.gov.br/datavisa/fila_produto",
+              "code": "2.3.1.1.1-7",
+              "display": "Pembrolizumabe 100mg/4mL"
+            }
+          ]
+        },
+        "subject": { "reference": "urn:uuid:patient-001" },
+        "encounter": { "reference": "urn:uuid:encounter-003" },
+        "dosageInstruction": [
+          {
+            "text": "200mg IV a cada 3 semanas, conforme protocolo oncológico KEYNOTE-189"
+          }
+        ],
+        "note": [
+          {
+            "text": "Imunoterapia iniciada após confirmação de expressão de PD-L1 ≥ 50%. Monitoramento de eventos adversos imunomediados."
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-004",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "observation-004",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "58410-2",
+              "display": "Hemograma completo"
+            }
+          ]
+        },
+        "subject": { "reference": "urn:uuid:patient-001" },
+        "encounter": { "reference": "urn:uuid:encounter-003" },
+        "effectiveDateTime": "2024-03-05",
+        "component": [
+          { "code": { "text": "Hemoglobina" }, "valueQuantity": { "value": 11.8, "unit": "g/dL" }, "interpretation": [{ "text": "Levemente reduzida" }] },
+          { "code": { "text": "Leucócitos" }, "valueQuantity": { "value": 5200, "unit": "/mm³" } },
+          { "code": { "text": "Plaquetas" }, "valueQuantity": { "value": 178000, "unit": "/mm³" } },
+          { "code": { "text": "CEA" }, "valueQuantity": { "value": 9.2, "unit": "ng/mL" }, "interpretation": [{ "text": "Redução de 51% em relação ao diagnóstico — resposta parcial" }] }
+        ]
+      }
+    }
+  ]
+}

@@ -10,7 +10,7 @@
   "dataAddress": {
     "@type": "DataAddress",
     "type": "HttpData",
-    "baseUrl": "https://data.guarnieri.studio/nginx/paciente",
+    "baseUrl": "http://nginx:80/nginx/paciente",
     "proxyMethod": "true",
     "proxyBody": "true",
     

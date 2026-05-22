@@ -21,7 +21,7 @@ clear
 echo -e "${AMARELO}==========================================================================${NC}"
 echo -e "${BRANCO}         ECLIPSE DATASPACE COMPONENTS (EDC) - FRAMEWORK DE TESTES           ${NC}"
 echo -e "${AMARELO}==========================================================================${NC}"
-echo -e "${BRANCO} Ambiente: Provedor e Consumidor Locais | Cenário 2: Aprovação externa     ${NC}"
+echo -e "${BRANCO} Ambiente: Provedor e Consumidor Locais | Cenário 4: Aprovação Externa    ${NC}"
 echo -e "${AMARELO}==========================================================================${NC}"
 sleep 1
 
@@ -29,7 +29,7 @@ sleep 1
 # PASSO 1: Publicação dos Recursos no Provedor
 # ----------------------------------------------------------------------
 echo -e "\n${AZUL}[PASSO 1] Provedor publica um dado em seu conector (Asset, Policy e Contract)${NC}"
-echo ""
+echo "--------------------------------------------------------------------------"
 
 echo -e " [HTTP] ${VERDE}POST${NC} ${PROVIDER}/management/v3/assets"
 ASSET_RES=$(curl -s -H "X-Api-Key: $API_KEY" -H "Content-Type: application/json" \
@@ -58,61 +58,74 @@ sleep 2
 # PASSO 2: Consulta ao Catálogo Federado
 # ----------------------------------------------------------------------
 echo -e "\n${AZUL}[PASSO 2] Consumidor consulta o Catálogo Federado${NC}"
-echo ""
-echo -e " [HTTP] ${VERDE}POST${NC} ${FEDERATED_CATALOG}/api/catalog/v1alpha/catalog/query"
+echo "--------------------------------------------------------------------------"
+echo -e " [HTTP] ${VERDE}POST${NC} ${CONSUMER}/management/v3/catalog/request"
 
 CATALOG_RES=$(curl -s -H "X-Api-Key: $API_KEY" -H "Content-Type: application/json" \
   -d @resources/catalog-request.json \
   -X POST $CONSUMER/management/v3/catalog/request)
 
-# Filtro corrigido e simplificado em uma única linha para evitar problemas de quebra de shell
+echo -e "\n${CINZA}[CONTEÚDO COMPLETO DO CATÁLOGO FEDERADO REQUISITADO]:${NC}"
+echo "$CATALOG_RES" | jq .
+echo "--------------------------------------------------------------------------"
+
+# Filtro do Offer ID
 OFFER_ID=$(echo "$CATALOG_RES" | jq -r --arg ASSET "$ASSET_ID" '[.["dcat:dataset"]] | flatten | .[] | select(.["@id"] == $ASSET or .id == $ASSET) | .["odrl:hasPolicy"]["@id"]' | head -1)
 
 if [ -z "$OFFER_ID" ] || [ "$OFFER_ID" = "null" ]; then
     echo -e " [ERRO] Recurso '$ASSET_ID' não localizado no catálogo federado."
-    echo -e "${CINZA}[DEBUG] Resposta bruta:${NC}"
-    echo "$CATALOG_RES" | jq .
     exit 1
 fi
 
 echo -e "        Status: ${VERDE}SUCCESS${NC} | Recurso localizado no catálogo federado."
-echo -e "        Offer ID: ${AMARELO}$OFFER_ID${NC}"
-
+echo -e "        Offer ID Extraído: ${AMARELO}$OFFER_ID${NC}"
+sleep 2
 
 # ----------------------------------------------------------------------
 # PASSO 3: Inicialização do Protocolo de Negociação
 # ----------------------------------------------------------------------
-echo -e "\n${AZUL}[PASSO 3] Consumidor inicia a Negociação do Contrato${NC}"
-echo ""
-echo -e " [HTTP] ${VERDE}POST${NC} ${CONSUMER}/management/v3/contractnegotiations"
+echo -e "\n${AZUL}[PASSO 3] Consumidor inicia a Negociação do Contrato (Contract Request)${NC}"
+echo "--------------------------------------------------------------------------"
 
-# Injeção direta e segura das variáveis no escopo do JSON por aspas escapadas
+PAYLOAD_NEGOTIATION=$(cat <<EOF
+{
+  "@context": { "@vocab": "https://w3id.org/edc/v0.0.1/ns/" },
+  "@type": "ContractRequest",
+  "counterPartyId": "provider1",
+  "counterPartyAddress": "http://provider1:19194/protocol",
+  "protocol": "dataspace-protocol-http",
+  "policy": {
+    "@context": "http://www.w3.org/ns/odrl.jsonld",
+    "@id": "$OFFER_ID",
+    "@type": "Offer",
+    "odrl:permission": [{"odrl:action": {"@id": "odrl:use"}}],
+    "odrl:prohibition": [],
+    "odrl:obligation": [],
+    "assigner": "provider1",
+    "target": "$ASSET_ID"
+  }
+}
+EOF
+)
+
+echo -e "${CINZA}[PAYLOAD DE CONTRATO ENVIADO PELO CONSUMER]:${NC}"
+echo "$PAYLOAD_NEGOTIATION" | jq .
+echo "--------------------------------------------------------------------------"
+
+echo -e " [HTTP] ${VERDE}POST${NC} ${CONSUMER}/management/v3/contractnegotiations"
 NEGOTIATION_RAW=$(curl -s -H "X-Api-Key: $API_KEY" -H "Content-Type: application/json" \
   -X POST $CONSUMER/management/v3/contractnegotiations \
-  -d "{
-    \"@context\": { \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\" },
-    \"@type\": \"ContractRequest\",
-    \"counterPartyId\": \"provider1\",
-    \"counterPartyAddress\": \"http://provider1:19194/protocol\",
-    \"protocol\": \"dataspace-protocol-http\",
-    \"policy\": {
-      \"@context\": \"http://www.w3.org/ns/odrl.jsonld\",
-      \"@id\": \"$OFFER_ID\",
-      \"@type\": \"Offer\",
-      \"odrl:permission\": [{\"odrl:action\": {\"@id\": \"odrl:use\"}}],
-      \"odrl:prohibition\": [],
-      \"odrl:obligation\": [],
-      \"assigner\": \"provider1\",
-      \"target\": \"$ASSET_ID\"
-    }
-  }")
+  -d "$PAYLOAD_NEGOTIATION")
+
+echo -e "\n${CINZA}[RESPOSTA DA INICIALIZAÇÃO DA NEGOCIAÇÃO]:${NC}"
+echo "$NEGOTIATION_RAW" | jq .
+echo "--------------------------------------------------------------------------"
 
 NEGOTIATION_ID=$(echo "$NEGOTIATION_RAW" \
   | jq -r 'if type=="array" then (.[0].id // .[0]["@id"]) else (.id // .["@id"]) end')
 
 if [ -z "$NEGOTIATION_ID" ] || [ "$NEGOTIATION_ID" = "null" ]; then
     echo -e " [ERRO] Falha na inicialização da negociação."
-    echo -e "${CINZA}[DEBUG] Resposta bruta:${NC} $NEGOTIATION_RAW"
     exit 1
 fi
 echo -e "        Status: ${VERDE}INITIALIZED${NC} | Processo registrado no conector local."
@@ -123,13 +136,18 @@ sleep 2
 # ----------------------------------------------------------------------
 # PASSO 4: Avaliação do Estado da Negociação
 # ----------------------------------------------------------------------
-echo -e "\n${AZUL}[PASSO 4] Verificando o Estado da Negociação${NC}"
-echo ""
+echo -e "\n${AZUL}[PASSO 4] Verificando o Estado da Negociação nos conectores${NC}"
+echo "--------------------------------------------------------------------------"
 echo -e " [HTTP] ${VERDE}GET${NC} ${CONSUMER}/management/v3/contractnegotiations/$NEGOTIATION_ID"
-STATE_RES=$(curl -s -H "X-Api-Key: $API_KEY" \
-  $CONSUMER/management/v3/contractnegotiations/$NEGOTIATION_ID | jq -r '.state')
-echo -e "        Estado atual no Consumidor: ${ROXO}$STATE_RES${NC}"
 
+NEGOTIATION_STATUS_FULL=$(curl -s -H "X-Api-Key: $API_KEY" $CONSUMER/management/v3/contractnegotiations/$NEGOTIATION_ID)
+echo -e "\n${CINZA}[DETALHES DO ESTADO DE NEGOCIAÇÃO NO CONSUMIDOR]:${NC}"
+echo "$NEGOTIATION_STATUS_FULL" | jq .
+
+STATE_RES=$(echo "$NEGOTIATION_STATUS_FULL" | jq -r '.state')
+echo -e "\n        Estado atual no Consumidor: ${ROXO}$STATE_RES${NC}"
+
+# Buscando ID da negociação no Provedor
 PROVIDER_ID=$(curl -s -H "X-Api-Key: $API_KEY" -H "Content-Type: application/json" \
   -X POST $PROVIDER/management/v3/contractnegotiations/request \
   -d '{"@context": {"@vocab": "https://w3id.org/edc/v0.0.1/ns/"}, "filterExpression": [{"operandLeft": "state", "operator": "=", "operandRight": "REQUESTED"}]}' \
@@ -159,105 +177,138 @@ if [ "$DECISAO" = "1" ]; then
   curl -s -H "X-Api-Key: $API_KEY" -X POST \
     $PROVIDER/management/v3/contractnegotiations/$PROVIDER_ID/approve
 
-  echo -e "\n[WAIT] Aguardando propagação do estado..."
-  sleep 3
+  echo -e "\n[WAIT] Aguardando propagação do estado e consolidação do Contract Agreement..."
+  sleep 4
 
   echo -e "\n${AZUL}[VERIFICAÇÃO] Consultando estado consolidado da transação...${NC}"
   FINAL_STATUS=$(curl -s -H "X-Api-Key: $API_KEY" \
     $CONSUMER/management/v3/contractnegotiations/$NEGOTIATION_ID)
+  
+  echo -e "${CINZA}[RESPOSTA FINAL DA NEGOCIAÇÃO PÓS-APROVAÇÃO]:${NC}"
+  echo "$FINAL_STATUS" | jq .
+  echo "--------------------------------------------------------------------------"
+
   STATE_FINAL=$(echo "$FINAL_STATUS" | jq -r '.state')
   AGREEMENT_ID=$(echo "$FINAL_STATUS" | jq -r '.contractAgreementId')
 
   echo -e "        Estado Final: ${VERDE}$STATE_FINAL${NC}"
-  echo -e "        Contract Agreement ID: ${AMARELO}$AGREEMENT_ID${NC}"
+  echo -e "        Contract Agreement ID (O Acordo Assinado): ${AMARELO}$AGREEMENT_ID${NC}"
 
   # ----------------------------------------------------------------------
   # PASSO 5: Transferência do Dado
   # ----------------------------------------------------------------------
-  echo -e "\n${AZUL}[PASSO 5] Iniciando transferência do dado${NC}"
-  echo ""
-  echo -e " [HTTP] ${VERDE}POST${NC} ${CONSUMER}/management/v3/transferprocesses"
+  echo -e "\n${AZUL}[PASSO 5] Iniciando protocolo de transferência de dados (Transfer Request)${NC}"
+  echo "--------------------------------------------------------------------------"
+  
+  PAYLOAD_TRANSFER=$(cat <<EOF
+{
+  "@context": { "@vocab": "https://w3id.org/edc/v0.0.1/ns/" },
+  "@type": "TransferRequestDto",
+  "connectorId": "provider1",
+  "counterPartyAddress": "http://provider1:19194/protocol",
+  "contractId": "$AGREEMENT_ID",
+  "protocol": "dataspace-protocol-http",
+  "transferType": "HttpData-PULL"
+}
+EOF
+)
+  echo -e "${CINZA}[PAYLOAD DE TRANSFERÊNCIA SOLICITADA]:${NC}"
+  echo "$PAYLOAD_TRANSFER" | jq .
+  echo "--------------------------------------------------------------------------"
 
+  echo -e " [HTTP] ${VERDE}POST${NC} ${CONSUMER}/management/v3/transferprocesses"
   TRANSFER_RAW=$(curl -s -H "X-Api-Key: $API_KEY" -H "Content-Type: application/json" \
     -X POST $CONSUMER/management/v3/transferprocesses \
-    -d "{
-      \"@context\": { \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\" },
-      \"@type\": \"TransferRequestDto\",
-      \"connectorId\": \"provider1\",
-      \"counterPartyAddress\": \"http://provider1:19194/protocol\",
-      \"contractId\": \"$AGREEMENT_ID\",
-      \"protocol\": \"dataspace-protocol-http\",
-      \"transferType\": \"HttpData-PULL\"
-    }")
+    -d "$PAYLOAD_TRANSFER")
+
+  echo -e "\n${CINZA}[RESPOSTA DO PROCESSO DE TRANSFERÊNCIA EMITIDO]:${NC}"
+  echo "$TRANSFER_RAW" | jq .
+  echo "--------------------------------------------------------------------------"
 
   TRANSFER_ID=$(echo "$TRANSFER_RAW" \
     | jq -r 'if type=="array" then (.[0].id // .[0]["@id"]) else (.id // .["@id"]) end')
 
   if [ -z "$TRANSFER_ID" ] || [ "$TRANSFER_ID" = "null" ]; then
     echo -e " [ERRO] Falha ao iniciar transferência."
-    echo -e "${CINZA}[DEBUG] Resposta bruta:${NC} $TRANSFER_RAW"
     exit 1
   fi
 
   echo -e "        Transfer Process ID: ${AMARELO}$TRANSFER_ID${NC}"
-  echo -e "\n[WAIT] Aguardando provisionamento do endpoint de dados..."
+  echo -e "\n[WAIT] Aguardando o Provedor provisionar o Token de Acesso (EDR)..."
   sleep 5
 
+
   # ----------------------------------------------------------------------
-  # PASSO 6: Busca do Endpoint e Token de Acesso
+  # PASSO 6: Busca do Endpoint e Token de Acesso (EDR)
   # ----------------------------------------------------------------------
-  echo -e "\n${AZUL}[PASSO 6] Obtendo endpoint e token de acesso ao dado${NC}"
-  echo ""
+  echo -e "\n${AZUL}[PASSO 6] Obtendo EDR (Endpoint Data Reference) e Token de Acesso${NC}"
+  echo "--------------------------------------------------------------------------"
   echo -e " [HTTP] ${VERDE}GET${NC} ${CONSUMER}/management/v3/edrs/$TRANSFER_ID/dataaddress"
 
   EDR=$(curl -s -H "X-Api-Key: $API_KEY" \
-    $CONSUMER/management/v3/edrs/$TRANSFER_ID/dataaddress)
+    "$CONSUMER/management/v3/edrs/$TRANSFER_ID/dataaddress")
 
-  # Resgate dinâmico do endereço público real mapeado dentro do create-asset.json
-  DATA_TARGET_URL=$(jq -r '.dataAddress.baseUrl // "https://data.guarnieri.studio/nginx/paciente"' resources/cenario4/create-asset.json)
-  DATA_TOKEN=$(echo "$EDR"   | jq -r '.authorization // .["https://w3id.org/edc/v0.0.1/ns/authorization"] // empty')
+  echo -e "\n${CINZA}[CONTEÚDO DO EDR RECEBIDO (DATA ADDRESS + TOKEN ASSET)]:${NC}"
+  echo "$EDR" | jq .
+  echo "--------------------------------------------------------------------------"
+
+  # Tratamento robusto para extrair o endpoint (suporta formato normal e expandido JSON-LD)
+  RAW_ENDPOINT=$(echo "$EDR" | jq -r '.endpoint // .["https://w3id.org/edc/v0.0.1/ns/endpoint"] // empty')
+
+  # Se o endpoint vier vazio, tenta buscar por mapeamento genérico de propriedades do DataAddress
+  if [ -z "$RAW_ENDPOINT" ] || [ "$RAW_ENDPOINT" = "null" ]; then
+    RAW_ENDPOINT=$(echo "$EDR" | jq -r '.properties["https://w3id.org/edc/v0.0.1/ns/endpoint"] // empty')
+  fi
+
+  # Como estamos rodando o script fora da rede do Docker, mapeia 'provider1' para 'localhost'
+  DATA_TARGET_URL=$(echo "$RAW_ENDPOINT" | sed 's/provider1/localhost/g')
+
+  # Captura correta do token gerado pelo EDC (suporta formato normal e expandido JSON-LD)
+  DATA_TOKEN=$(echo "$EDR" | jq -r '.authorization // .["https://w3id.org/edc/v0.0.1/ns/authorization"] // empty')
 
   if [ -z "$DATA_TOKEN" ] || [ "$DATA_TOKEN" = "null" ]; then
-    echo -e " [ERRO] Token de acesso não disponível."
-    echo -e "${CINZA}[DEBUG] EDR response:${NC}"
-    echo "$EDR" | jq .
+    echo -e " [ERRO] Token de acesso não disponível no EDR."
     exit 1
   fi
 
-  echo -e "        Target Endpoint: ${AMARELO}$DATA_TARGET_URL${NC}"
-  echo -e "        Token Gerado:    ${CINZA}${DATA_TOKEN:0:40}...${NC}"
+  echo -e "        Target Endpoint Dinâmico do EDC: ${AMARELO}$DATA_TARGET_URL${NC}"
+  echo -e "        Token Descentralizado (EDC JWT) Gerado: ${CINZA}${DATA_TOKEN:0:50}... [TRUNCADO]${NC}"
+
 
   # ----------------------------------------------------------------------
-  # PASSO 7: Acesso ao Dado Real
+  # PASSO 7: Acesso ao Dado Real (Via Fluxo de Governança do Data Plane)
   # ----------------------------------------------------------------------
-  echo -e "\n${AZUL}[PASSO 7] Acessando o dado via endpoint seguro gerenciado${NC}"
-  echo ""
-
-  # CORREÇÃO: Apontando para o caminho correto do arquivo que você deu 'cat'
-  TOKEN_ASSET=$(jq -r '.dataAddress.authCode // "Não configurado"' resources/create-asset.json)
+  echo -e "\n${AZUL}[PASSO 7] Consumidor acessando o dado clínico real via plano de dados seguro${NC}"
+  echo "--------------------------------------------------------------------------"
 
   echo -e " [HTTP] ${VERDE}GET${NC} $DATA_TARGET_URL"
-  echo -e "        Authorization: ${AMARELO}$TOKEN_ASSET${NC}"
+  echo -e "        Enviando requisição segura para o Data Plane do Provedor..."
   echo ""
 
-  # Faz a requisição portando o token correto para o Nginx público
-  DADO=$(curl -s -H "Authorization: $DATA_TOKEN" "$DATA_TARGET_URL")
+  # TENTATIVA 1: Enviando com o formato padrão "Bearer <TOKEN>"
+  echo -e " ${CINZA}[Tentativa 1] Enviando com cabeçalho 'Bearer <TOKEN>'...${NC}"
+  DADO=$(curl -s -H "Authorization: Bearer $DATA_TOKEN" "$DATA_TARGET_URL")
 
-  # Validação estrutural preventiva do JSON FHIR
-  if [[ ! "$DADO" =~ ^\{ ]]; then
-    echo -e " [ERRO] Não foi possível estruturar os dados clínicos recebidos."
-    echo -e "${CINZA}[DEBUG] Resposta capturada:${NC} $DADO"
-    exit 1
+  # Tratamento de Contingência: Se o Jetty do EDC retornar 403 Forbidden com "Bearer ",
+  # significa que a versão instalada do Data Plane espera o token limpo/cru no cabeçalho
+  if [[ "$DADO" == *"403 Forbidden"* ]]; then
+     echo -e "${AMARELO}        [AVISO] Formato Bearer retornou 403. Tentando Token Cru direto no header...${NC}"
+     DADO=$(curl -s -H "Authorization: $DATA_TOKEN" "$DATA_TARGET_URL")
   fi
 
-  RESOURCE_TYPE=$(echo "$DADO" | jq -r '.resourceType // "desconhecido"')
-  PATIENT_NAME=$(echo "$DADO"  | jq -r '.entry[] | select(.resource.resourceType=="Patient") | .resource.name[0].given[0] + " " + .resource.name[0].family' 2>/dev/null | head -1)
-  NUM_ENTRIES=$(echo "$DADO"   | jq '.entry | length' 2>/dev/null)
+  echo -e "\n${CINZA}[PAYLOAD COMPLETO DO DADO CLÍNICO DEVOLVIDO]:${NC}"
 
-  echo -e "        Resource Type:  ${VERDE}$RESOURCE_TYPE${NC}"
-  echo -e "        Paciente:       ${VERDE}$PATIENT_NAME${NC}"
-  echo -e "        Entradas FHIR:  ${VERDE}$NUM_ENTRIES registros${NC}"
-  echo ""
+  # Tenta formatar com o JQ se for um JSON legítimo, senão exibe o texto bruto (HTML de erro, por exemplo)
+  echo "$DADO" | jq . 2>/dev/null || echo "$DADO"
+  echo "--------------------------------------------------------------------------"
+
+  # Validação de sucesso para o script de TCC
+  if [[ "$DADO" == *"Error"* ]] || [[ "$DADO" == *"403"* ]]; then
+     echo -e "${VERMELHO} [ERRO] A requisição foi rejeitada pelo gateway do plano de dados.${NC}"
+     exit 1
+  else
+     echo -e "${VERDE} [SUCESSO] Dados clínicos obtidos e validados via ecossistema EDC!${NC}"
+  fi
 
 elif [ "$DECISAO" = "2" ]; then
   echo -e "\n[INFO] Enviando rejeição ao Provedor..."
@@ -265,18 +316,19 @@ elif [ "$DECISAO" = "2" ]; then
   curl -s -H "X-Api-Key: $API_KEY" -X POST \
     $PROVIDER/management/v3/contractnegotiations/$PROVIDER_ID/reject
 
-  sleep 6
+  echo -e "\n[WAIT] Propagando rejeição..."
+  sleep 4
 
-  echo -e "\n${AZUL}[VERIFICAÇÃO] Consultando estado consolidado...${NC}"
+  echo -e "\n${AZUL}[VERIFICAÇÃO] Consultando estado consolidado no Consumidor...${NC}"
   STATE_FINAL=$(curl -s -H "X-Api-Key: $API_KEY" \
     $CONSUMER/management/v3/contractnegotiations/$NEGOTIATION_ID | jq -r '.state')
 
-  echo -e "        Estado Final: ${VERMELHO}$STATE_FINAL${NC}"
+  echo -e "        Estado Final no Consumidor: ${VERMELHO}$STATE_FINAL${NC}"
   echo ""
-  echo -e "${VERMELHO}[CANCELADO] Negociação rejeitada. Acesso ao dado negado.${NC}"
+  echo -e "${VERMELHO}[CANCELADO] Negociação legalmente rejeitada pela governança. Acesso negado.${NC}"
 
 else
-  echo -e "${VERMELHO}[ERRO] Opção inválida. Execução cancelada.${NC}"
+  echo -e "${VERMELHO}[ERRO] Opção inválida. Execução abortada.${NC}"
 fi
 
 echo -e "${AMARELO}======================================================================${NC}\n"

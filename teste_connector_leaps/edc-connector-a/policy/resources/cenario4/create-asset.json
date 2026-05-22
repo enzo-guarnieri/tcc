@@ -1,14 +1,18 @@
 {
-  "@context": { "@vocab": "https://w3id.org/edc/v0.0.1/ns/" },
+  "@context": { "@vocab": "https://w3id.org/edc/v0.0.1/ns/"},
   "@id": "prontuario-joao-silva",
   "properties": {
-    "name": "Prontuário Oncológico — João Antônio Silva",
-    "description": "Histórico clínico completo do paciente, incluindo diagnóstico de adenocarcinoma pulmonar estágio IIA e protocolo de imunoterapia em andamento.",
-    "contenttype": "application/fhir+json",
-    "version": "1.0"
+    "name": "Prontuário Clínico FHIR - João Silva",
+    "contenttype": "application/json"
   },
   "dataAddress": {
+    "@type": "DataAddress",
     "type": "HttpData",
-    "baseUrl": "https://data.guarnieri.studio/nginx/paciente"
+    "baseUrl": "http://nginx:80/nginx/paciente",
+    "proxyMethod": "true",
+    "proxyBody": "true",
+    "header:Host": "data.guarnieri.studio",
+    "authKey": "Authorization",
+    "authCode": "Bearer TCC_MACKENZIE_SECRET_TOKEN_2026"
   }
 }
